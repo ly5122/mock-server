@@ -4,7 +4,7 @@ import (
 	"flag"
 	"net/http"
 
-	logger "github.com/jbrodriguez/mlog"
+	logger "log"
 )
 
 var (
@@ -19,10 +19,10 @@ func main() {
 	e.init()
 	err := http.ListenAndServe(*addr, e)
 	if err != nil {
-		logger.Error(err)
+		logger.Print(err)
 	}
 }
 
 func initLog() {
-	logger.Start(logger.LevelInfo, "./info.log")
+	logger.Print("\n>> Welcome to mock-server\n>> Any questions please contact ly5122@github.com")
 }

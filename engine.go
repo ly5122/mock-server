@@ -8,10 +8,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	logger "github.com/jbrodriguez/mlog"
 	"io"
 	"io/ioutil"
 	"strconv"
+	"time"
+	logger "log"
 )
 
 const (
@@ -93,7 +94,7 @@ func (e *engine) process(rt routeTable, w http.ResponseWriter, r *http.Request) 
 				if(buf.Len() <= maxSize) {
 					tempString = buf.String()
 				}
-				logger.Info("path:%v, queryRaw:%v, bodyRaw:%v", r.URL.Path, r.URL.RawQuery, tempString)
+				logger.Print("path:%v, queryRaw:%v, bodyRaw:%v", r.URL.Path, r.URL.RawQuery, tempString)
 				value.hr = append(value.hr, histroyRaw{
 					queryRaw: r.URL.RawQuery,
 					bodyRaw:  buf.String(),
@@ -125,6 +126,17 @@ func (e *engine) execCmd(cmd string, w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		switch {
+		case strings.HasPrefix(tag[0], "func"):
+			if len(tag) != 3 {
+				e.writeResponse(w, 400, "cmd func foramt error")
+				break
+			}
+			if tag[1] == "sleep" {
+				c, err := strconv.Atoi(tag[2])
+				if err != nil {
+				    time.Sleep(time.Millisecond * c)
+				}
+			}
 		case strings.HasPrefix(tag[0], "res_header"):
 			if len(tag) != 3 {
 				e.writeResponse(w, 400, "cmd res_header foramt error")
