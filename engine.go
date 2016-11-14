@@ -134,7 +134,7 @@ func (e *engine) execCmd(cmd string, w http.ResponseWriter, r *http.Request) {
 			if tag[1] == "sleep" {
 				c, err := strconv.Atoi(tag[2])
 				if err != nil {
-				    time.Sleep(time.Millisecond * c)
+				    time.Sleep(time.Millisecond * time.Duration(c))
 				}
 			}
 		case strings.HasPrefix(tag[0], "res_header"):
