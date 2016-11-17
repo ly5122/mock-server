@@ -73,7 +73,7 @@ func (e *engine) process(rt routeTable, w http.ResponseWriter, r *http.Request) 
 				var buf bytes.Buffer
 				ct := r.Header.Get("Content-Type")
 				switch {
-				case ct == "application/x-www-form-urlencoded":
+				case strings.HasPrefix(ct, "application/x-www-form-urlencoded"):
 					r.ParseForm()
 					for key, value := range r.PostForm {
 						prefix := key + "="
