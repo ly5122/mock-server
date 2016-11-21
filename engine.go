@@ -94,7 +94,7 @@ func (e *engine) process(rt routeTable, w http.ResponseWriter, r *http.Request) 
 				if(buf.Len() <= maxSize) {
 					tempString = buf.String()
 				}
-				logger.Print("path:%v, queryRaw:%v, bodyRaw:%v", r.URL.Path, r.URL.RawQuery, tempString)
+				logger.Print("path:",r.URL.Path, ", queryRaw:",r.URL.RawQuery, ", bodyRaw:", tempString)
 				value.hr = append(value.hr, histroyRaw{
 					queryRaw: r.URL.RawQuery,
 					bodyRaw:  buf.String(),
@@ -166,6 +166,7 @@ func (e *engine) execCmd(cmd string, w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(code)
 	w.Write(body)
+	logger.Print("response: ", string(body))
 }
 
 func (e *engine) trim(s string) string {
