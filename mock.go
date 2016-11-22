@@ -24,5 +24,8 @@ func main() {
 }
 
 func initLog() {
+	go func() {
+		http.ListenAndServe(":6060", nil)
+	}()
 	logger.Print("\n>> Welcome to mock-server\n>> Any questions please contact ly5122@github.com")
 }

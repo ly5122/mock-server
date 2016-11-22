@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"time"
 	logger "log"
+
+	_ "net/http/pprof"
 )
 
 const (
@@ -71,33 +73,33 @@ func (e *engine) process(rt routeTable, w http.ResponseWriter, r *http.Request) 
 					value.hr = make([]histroyRaw, 0)
 				}
 				var buf bytes.Buffer
-				ct := r.Header.Get("Content-Type")
-				switch {
-				case strings.HasPrefix(ct, "application/x-www-form-urlencoded"):
-					r.ParseForm()
-					for key, value := range r.PostForm {
-						prefix := key + "="
-						for _, v := range value {
-							if buf.Len() > 0 {
-								buf.WriteByte('&')
-							}
-							buf.WriteString(prefix)
-							buf.WriteString(v)
-						}
-					}
-				default:
-					var reader io.Reader = r.Body
-					b, _ := ioutil.ReadAll(reader)
-					buf.Write(b)
-				}
 				tempString := "body too big"
-				if(buf.Len() <= maxSize) {
+				cl, err := strconv.Atoi(r.Header.Get("Content-Length"))
+				if err == nil && cl <= maxSize {
+					if strings.HasPrefix(r.URL.Path, INTERNAL) {
+						r.ParseForm()
+						for key, value := range r.PostForm {
+							prefix := key + "="
+							for _, v := range value {
+								if buf.Len() > 0 {
+									buf.WriteByte('&')
+								}
+								buf.WriteString(prefix)
+								buf.WriteString(v)
+							}
+						}
+					} else {
+						var reader io.Reader = r.Body
+						b, _ := ioutil.ReadAll(reader)
+						buf.Write(b)
+					}
 					tempString = buf.String()
+					buf.Reset()
 				}
 				logger.Print("path:",r.URL.Path, ", queryRaw:",r.URL.RawQuery, ", bodyRaw:", tempString)
 				value.hr = append(value.hr, histroyRaw{
 					queryRaw: r.URL.RawQuery,
-					bodyRaw:  buf.String(),
+					bodyRaw:  tempString,
 				})
 				//匹配情况下有handleFunc就执行，没有就解析cmd
 				if value.hf != nil {
